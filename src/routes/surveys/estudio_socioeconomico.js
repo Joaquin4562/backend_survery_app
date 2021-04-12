@@ -41,6 +41,7 @@ router.post('/new', (request, response) => {
                 VALUES
                     (?, ?, ?, ?, ?, ?)`;
             lista_familiares.forEach(element => {
+                console.log(element)
                 connection.query(sql,
                     [id_ficha_identificacion,
                         element.parentesco,
