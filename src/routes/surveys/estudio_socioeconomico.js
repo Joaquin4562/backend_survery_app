@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const getConnection = require('../../../config');
-connection = getConnection();
 router.post('/new', (request, response) => {
+    connection = getConnection();
     connection.connect(err => {
         if (err) {
             console.log(err);
