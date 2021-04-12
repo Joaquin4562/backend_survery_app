@@ -41,6 +41,13 @@ router.post('/new', (request, response) => {
                 VALUES
                     (?, ?, ?, ?, ?, ?)`;
             lista_familiares.forEach(element => {
+                connection = getConnection();
+                connection.connect(err => {
+                    if (err) {
+                        console.log(err);
+                        response.status(200).json({ error: true, message: 'coul not connect to DB' });
+                    }
+                });
                 console.log(element)
                 connection.query(sql,
                     [id_ficha_identificacion,
@@ -52,11 +59,12 @@ router.post('/new', (request, response) => {
                     ], (error, _) => {
                         if (error) return response.status(200).json({ error: true, message: error.message });
                     });
+                connection.end();
             });
-            connection.end();
-            response.status(200).json({error: false, message: 'Encuesta registrada'});
+            response.status(200).json({ error: false, message: 'Encuesta registrada' });
         }
     });
+    connection.end();
 });
 
 module.exports = router;
