@@ -31,40 +31,36 @@ router.post('/new', (request, response) => {
         dinero_padres,
         id_ficha_identificacion
     ];
-    connection.query(sql, values, (error, result) => {
+    connection.query(sql, values, async (error, result) => {
         if (error) {
             response.status(200).json({ error: true, message: error.message });
         } else {
-            console.log(result[2][0]['@msg']);
             sql = `INSERT INTO info_familia 
                     (id_ficha_identificacion, parentesco, edad, telefono, nombre, grado_academico)
                 VALUES
                     (?, ?, ?, ?, ?, ?)`;
-            lista_familiares.forEach(element => {
-                connection = getConnection();
-                connection.connect(err => {
-                    if (err) {
-                        console.log(err);
-                        response.status(200).json({ error: true, message: 'coul not connect to DB' });
-                    }
+            var cont = 0;
+            do {
+                await new Promise(async(resolve) => {
+                    await connection.query(sql,
+                        [id_ficha_identificacion,
+                            lista_familiares[cont].parentesco,
+                            lista_familiares[cont].edad,
+                            lista_familiares[cont].telefono,
+                            lista_familiares[cont].nombre,
+                            lista_familiares[cont].grado_academico
+                        ], (error, _) => {
+                            if (error) return response.status(200).json({ error: true, message: error.message });
+                            resolve();
+                        });
+                }).then(() => {
+                    cont++;
                 });
-                console.log(element)
-                connection.query(sql,
-                    [id_ficha_identificacion,
-                        element.parentesco,
-                        element.edad,
-                        element.telefono,
-                        element.nombre,
-                        element.grado_academico
-                    ], (error, _) => {
-                        if (error) return response.status(200).json({ error: true, message: error.message });
-                    });
-                connection.end();
-            });
-            response.status(200).json({ error: false, message: 'Encuesta registrada' });
+            } while (cont != lista_familiares.length);
+            response.status(200).json({error: false, message: 'encuesta contestada'});
+            connection.end();
         }
     });
-    connection.end();
 });
 
 module.exports = router;
